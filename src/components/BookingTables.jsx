@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import DataTable from 'react-data-table-component';
 import useBookings from '../services/bookingApi';
+import Spinner from '../utils/spinner';
 
 const columns = [
   {
@@ -36,8 +37,8 @@ function BookingTables() {
   const [pageSize, setPageSize] = useState(3);
   const {
     data: bookingsData,
-    status,
-    error,
+    isLoading,
+    isError,
   } = useBookings(currentPage, ordering, pageSize);
 
   const handlePrevClick = () => {
@@ -63,8 +64,9 @@ function BookingTables() {
     setCurrentPage(1);
   };
 
-  if (status === 'loading') return <p>Loading...</p>;
-  if (status === 'failed') return <p>Error: {error}</p>;
+  {
+    isError && <p>an error occur</p>;
+  }
 
   return (
     <div className="bg-white p-5 rounded shadow-sm ">
@@ -79,13 +81,19 @@ function BookingTables() {
         <option value="checkin">Checkin Ascending</option>
         <option value="-checkin">Checkin Descending</option>
       </select>
-      <DataTable
-        columns={columns}
-        data={bookingsData?.results || []}
-        highlightOnHover
-        pointerOnHover
-        striped
-      />
+
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={bookingsData?.results || []}
+          highlightOnHover
+          pointerOnHover
+          striped
+        />
+      )}
+
       <select
         className="form-select w-25 my-3 d-inline"
         aria-label="Page size select"
